@@ -1,6 +1,6 @@
 
 def product():
-    return 0 , 12 
+    return 0 , 12
 
 sold , price = product()
 
