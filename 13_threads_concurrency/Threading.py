@@ -19,7 +19,6 @@ brewing_chai = threading.Thread(target=brew_chai)
 order_thread.start()
 brewing_chai.start()
 
-
 # wait for both to finish 
 order_thread.join()
 brewing_chai.join()
