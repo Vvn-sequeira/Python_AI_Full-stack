@@ -2,7 +2,7 @@ from fastapi import FastAPI , Body
 from ollama import Client
 app = FastAPI() 
 client = Client(
-    host="http://127.0.0.1:8000"
+     host="http://127.0.0.1:11434"
 )
 
 @app.get("/")
@@ -16,7 +16,7 @@ def read_root():
 async def chat(
     message : str = Body(..., description="The message")
 ):
-    response= await client.chat(model="gemma:2b" , messages=[
+    response= client.chat(model="gemma:2b" , messages=[
         {"role" : "user" , "content": message}
     ])
     
