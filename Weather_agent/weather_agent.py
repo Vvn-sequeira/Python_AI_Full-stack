@@ -14,10 +14,10 @@ client = Client(
 
 GEMENI_API=os.getenv("GEMENI_API")
 
-# client = OpenAI(
-#     api_key=GEMENI_API,
-#     base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
-# )
+client = OpenAI(
+    api_key=GEMENI_API,
+    base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+)
 
 
 def weather(city:str):
@@ -78,22 +78,23 @@ user_input = input("🫴")
 message_history.append({"role":"user" , "content":user_input})
 
 while True: 
-#  response = client.chat.completions.create(
-#     model="gemini-2.5-flash",
-#     response_format={"type":"json_object"},
-#     messages= message_history
+ response = client.chat.completions.create(
+    model="gemini-2.5-flash",
+    response_format={"type":"json_object"},
+    messages= message_history
 
-# )
- response= client.chat(model="gemma:2b" , messages=[
-        {"role" : "user" , "content": "what is your name? " }
+)
+#  response= client.chat(model="gemma:2b" , messages=[
+#         {"role" : "user" , "content": message_history }
         
-    ])
- print(response.message.content)
+#     ]) 
+#  print(response.choices[0].message.content)
  
  raw_result = (response.choices[0].message.content)
  message_history.append({"role" : "assistant" , "content": raw_result})
  
  parsed_result = json.loads(raw_result)
+ print(parsed_result)
  
  if parsed_result.get("step") == "START":
      print("🔥" , parsed_result.get("content"))
@@ -117,3 +118,4 @@ while True:
  if parsed_result.get("step") == "OUTPUT":
      print("🗣️" , parsed_result.get("content"))
      continue
+ 
