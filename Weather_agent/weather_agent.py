@@ -2,7 +2,6 @@ import requests
 import json
 from langchain_ollama import ChatOllama
 
-<<<<<<< HEAD
 def weather(city: str):
     print("🌹 Weather function triggered with city name ", city )
     # URL = f"https://wttr.in/{city.lower()}?format=%C+%t"
@@ -14,7 +13,6 @@ def weather(city: str):
     #     return f"The weather in {city} is {res.text.strip()}"
 
     return f"weather in {city} is sunny with 40 deg  "
-=======
 
 async def  weather(city: str):
     URL = f"https://wttr.in/{city.lower()}?format=%C+%t"
@@ -26,7 +24,6 @@ async def  weather(city: str):
         return f"The weather in {city} is {res.text.strip()}"
 
     return "Something went wrong, please try again later."
->>>>>>> f1dc9fa86f3e00a1aa505f84bd1db71015a06781
 
 available_tools = {
     "weather": weather
@@ -56,7 +53,7 @@ Rules:
 4. If a tool is required, respond with step = TOOL and fill both "tool" and "input".
 5. After the tool result is provided, continue with PLAN or go directly to OUTPUT.
 6. Finally, respond with step = OUTPUT to answer the user.
-<<<<<<< HEAD
+
 7. Must wait for the Result from tool calling 
 =======
 >>>>>>> f1dc9fa86f3e00a1aa505f84bd1db71015a06781
@@ -89,7 +86,7 @@ Seventh Loop:
 {"step": "OUTPUT" , content: "the weather in Mumbai is slightly cloudy with 29 deg temp " }
 
 
-<<<<<<< HEAD
+
 
 NOTE: 
 If you violate this protocol, you have FAILED the task.
@@ -126,10 +123,9 @@ while True:
     try:
         parsed = json.loads(raw_result)
     except Exception as e:
-<<<<<<< HEAD
-=======
+
+
         print("❌ JSON ERROR:", e)
->>>>>>> f1dc9fa86f3e00a1aa505f84bd1db71015a06781
         break
 
     step = parsed.get("step")
@@ -157,7 +153,6 @@ while True:
     if step == "TOOL":
         tool_name = parsed.get("tool")
         tool_input = parsed.get("input")
-<<<<<<< HEAD
         print(f"🔪 CALLING TOOL: {tool_name}({tool_input})")
         result =  available_tools[tool_name](tool_input)
         print(f"🔪 TOOL RESULT:", result)
@@ -165,7 +160,6 @@ while True:
             "role": "assistant",
             "content": f"Tool result: {result}"
         })
-=======
 
         print(f"🔪 CALLING TOOL: {tool_name}({tool_input})")
 
@@ -178,7 +172,6 @@ while True:
             "content": f"Tool result: {result}"
         })
 
->>>>>>> f1dc9fa86f3e00a1aa505f84bd1db71015a06781
         continue
 
     if step == "OUTPUT":
