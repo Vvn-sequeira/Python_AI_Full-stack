@@ -2,10 +2,15 @@ import requests
 from langchain_ollama import ChatOllama
 import json 
 
+<<<<<<< HEAD
 # URL = "https://wttr.in/Delhi?format=%C+%t"
+=======
+URL = "https://wttr.in/Delhi?format=%C+%t"
+>>>>>>> f1dc9fa86f3e00a1aa505f84bd1db71015a06781
 
 # res = requests.get(URL)
 
+<<<<<<< HEAD
 # print(res.status_code , "\n" , res.text) 
 
 def printf ():
@@ -16,6 +21,11 @@ available_tools = {
 }
 
 available_tools['printTool']() 
+=======
+print(res.status_code , "\n" , res.text) 
+
+
+>>>>>>> f1dc9fa86f3e00a1aa505f84bd1db71015a06781
 
 
 # llm = ChatOllama(
