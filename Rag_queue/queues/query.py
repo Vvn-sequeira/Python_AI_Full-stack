@@ -3,9 +3,8 @@ from langchain_ollama import OllamaEmbeddings
 from langchain_ollama import ChatOllama
 from langchain_core.messages import SystemMessage, HumanMessage
 
-embeddinng_model= OllamaEmbeddings(
-    model="nomic-embed-text",
-    base_url="http://localhost:11434"
+embedding_model= OllamaEmbeddings(
+# ...
     )
 
 llm = ChatOllama(
@@ -15,12 +14,12 @@ llm = ChatOllama(
 
 def get_result(query:str):
 
-    vecotr_store = QdrantVectorStore.from_existing_collection(
-    embedding=embeddinng_model,
+    vector_store = QdrantVectorStore.from_existing_collection(
+    embedding=embedding_model,
     url="http://localhost:6333",
     collection_name="learning_rag"
     )
-    search_result = vecotr_store.similarity_search(query=query)
+    search_result = vector_store.similarity_search(query=query)
     
     context = "\n\n".join([
     f"Page content: {result.page_content}\n"
@@ -30,7 +29,7 @@ def get_result(query:str):
     ])
     
     SYSTEM_PROMPT=f'''
-    You are a helpfull AI Assistent who answer user query based on the available context retreived from a PDF file along with page_contents and page number. 
+    You are a helpful AI Assistant who answer user query based on the available context retrieved from a PDF file along with page_contents and page number. 
     You should only answer the user based on the following context and navigate the user to open the right page number to know more. 
 
     Context: 
