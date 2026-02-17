@@ -4,4 +4,4 @@ app = FastAPI()
 
 @app.get("/")
 def root():
-    return {"Status": "server is Running"}
+    return {"Status": "server is Running"} 
