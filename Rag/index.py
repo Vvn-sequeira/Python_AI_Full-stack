@@ -31,4 +31,4 @@ vecotr_store = QdrantVectorStore.from_documents(
     collection_name="learning_rag"
 )
 
-print("Inndexing of doc DONE ")
+print("Inndexing of doc DONE")

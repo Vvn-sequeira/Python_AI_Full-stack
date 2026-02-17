@@ -2,8 +2,20 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from models import user_inp
 from database import collection 
+from fastapi.middleware.cors import CORSMiddleware
 
+
+from Ai import AiAgentReply
 app = FastAPI() 
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 @app.get("/")
 def read_root():
@@ -35,3 +47,8 @@ def signup(user:user_inp):
     collection.insert_one(user_dict)
     print("Successfully Inserted!!!")
     
+    
+@app.post("/AiAgent")
+def Call_agent(query:str):
+    res = AiAgentReply(query)
+    return res 
