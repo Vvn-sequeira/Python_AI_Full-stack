@@ -42,7 +42,12 @@ Answer UserQuery based on the Context provided to you.
 
 NOTE: DON"T Answer anything outside the Context Provided to you but you can answer the user query if the context is not enough for answering the question , you can mention like " according to the news report and FBI statement this and that . 
 
+While you answering the user query please make sure that you answere like a Victm not as an LLM who is reading the doc. 
 
+Exapmple: 
+user_query: is Trup is involved in the Epstine File ? 
+(after reading the context the ai res should be like ..)
+LLM_Ans: Trump is not involved in this event (... go on explaining othr stuff that appears in the context ..)
 
 CONTEXT: {context}
 """
