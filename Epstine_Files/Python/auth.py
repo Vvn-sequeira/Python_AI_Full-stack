@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from datetime import datetime , timedelta
 from DatabaseConnect import client
 from Modles.User_Modles import User_register, User_info , User_login
-
+from fastapi.middleware.cors import CORSMiddleware 
 SECRET_KEY='DJFALJD'
 ALOGRITHM='HS256'
 
@@ -31,9 +31,10 @@ def create_access_JWT(data:dict):
 def SignUp(register:User_register):
     register_dict = register.model_dump() 
     register_dict['password'] = HashPass(register.password)
-    Token = create_access_JWT({"email":register.email})
     user_collection.insert_one(register_dict)
     print("DONE!! User successfully registerd!! ")
+    user_id = user_collection.find_one({"email":register.email})
+    Token = create_access_JWT({"email":register.email , "user_id":str(user_id['_id'])})
     return Token
 
 def LogIn(LogIn:User_login):

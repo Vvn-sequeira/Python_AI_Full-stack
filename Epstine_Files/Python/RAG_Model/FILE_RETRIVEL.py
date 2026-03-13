@@ -4,39 +4,70 @@ from dotenv import load_dotenv
 import json
 from langchain_ollama import OllamaEmbeddings
 from langchain_qdrant import QdrantVectorStore 
-
-
 load_dotenv()
 
-client = OpenAI(
-    base_url="https://router.huggingface.co/v1",
-    api_key=os.getenv("HF_TOKEN"),
-)
 
-embeddinng_model= OllamaEmbeddings(
-    model="nomic-embed-text",
-    base_url="http://localhost:11434"
-)
 
-vecotr_store = QdrantVectorStore.from_existing_collection(
-    embedding=embeddinng_model,
-    url="http://localhost:6333",
-    collection_name="Epstine_Questioning_FILE"
-)
 
-user_query = input("What's your Question to JEFERYY EPSTINE>>>>")
 
-search_result = vecotr_store.similarity_search(query=user_query)
-# print(search_result[0])
-context=[
-    f"Page Content: {result.page_content}"
-    f"Page NUMBER: {result.metadata['page']}"
-    f"Total Page: {result.metadata['total_pages']}"
-    f"Source: Justice Department of USA"
-    for result in search_result
-]
 
-SYS_PROMPT=f"""
+def Vector_search(filename , user_query):
+    
+    embeddinng_model= OllamaEmbeddings(
+        model="nomic-embed-text",
+        base_url="http://localhost:11434"
+    )
+    
+    client = OpenAI(
+        base_url="https://router.huggingface.co/v1",
+        api_key=os.getenv("HF_TOKEN"),
+    )
+    
+    print("🌹🌹🌹🌹I am here with 1", filename , "annd " , user_query)
+    vecotr_store = QdrantVectorStore.from_existing_collection(
+        embedding=embeddinng_model,
+        url="http://localhost:6333",
+        collection_name=f"{filename}"
+    )
+    SYS_PROMPT1=f"""
+    You are an AI assistant.
+    who is going to improve this 'user query'
+    and add more key words so that it is helpfull to get more accurate result while doing RAG method on heavy PDF/doc/files
+    user_query={user_query}
+
+    NOTE: NO extra words , No introduction , NO conclusion , Only one improved userquery in a one String formate 
+    
+    Example:
+    user_query: Did Johhana have Fight with anyone?
+    (after reviewing and improving the query the AI should come up with )
+    imporved_query: Did Johanna have any sexual encounters with other characters in the document? Please provide specific details or page numbers if available.
+    
+    """
+    
+    completion = client.chat.completions.create(
+        model="Qwen/Qwen2.5-7B-Instruct:together",
+        messages=[
+            {"role":"system" , "content":SYS_PROMPT1}
+            ,{"role":"user" , "content":"Improve My query please"}
+        ]
+    )
+   
+    imporoved_user_query=completion.choices[0].message.content
+    # user_query = input("What's your Question to JEFERYY EPSTINE>>>>")
+
+    search_result = vecotr_store.similarity_search(query=imporoved_user_query)
+    
+    print("⚠️⚠️  Vectot search is DONE ") 
+    # print(search_result[0])
+    context=[
+        f"Page Content: {result.page_content}"
+        f"Page NUMBER: {result.metadata['page']}"
+        f"Total Page: {result.metadata['total_pages']}"
+        f"Source: Justice Department of USA"
+        for result in search_result
+    ]
+    print("⚠️⚠️  Context is DONE ") 
+    SYS_PROMPT=f"""
 You are an helpfull AI assistent , helping user to go through the EPSTIEN FILES.
 Answer UserQuery based on the Context provided to you.
 
@@ -50,23 +81,25 @@ user_query: is Trup is involved in the Epstine File ?
 LLM_Ans: Trump is not involved in this event (... go on explaining othr stuff that appears in the context ..)
 
 CONTEXT: {context}
-"""
-
-def AiAgentReply(query:str):
-    print(f"the query users sent is : {query}")
-    completion = client.chat.completions.create(
-        model="Qwen/Qwen2.5-7B-Instruct:together",
-        messages=[
-            {"role":"system" , "content":SYS_PROMPT},
-            {"role": "user" , "content": query}
-        ],
+    """
+    def AiAgentReply(query:str):
+        print(f"the query users sent is : {query}")
+        completion = client.chat.completions.create(
+            model="Qwen/Qwen2.5-7B-Instruct:together",
+            messages=[
+                {"role":"system" , "content":SYS_PROMPT},
+                {"role": "user" , "content": query}
+            ],
       
-    )
+        )
     
-    message = completion.choices[0].message
-    return message
+        message = completion.choices[0].message
+        return message
 
-result = AiAgentReply(user_query)
-print(result)
+    result = AiAgentReply(imporoved_user_query)
+    # print(result)
+    return result
  
         
+# Vector_search("Epstine_Questioning_FILE","Did Johhana have sex with anyone? ")
+
