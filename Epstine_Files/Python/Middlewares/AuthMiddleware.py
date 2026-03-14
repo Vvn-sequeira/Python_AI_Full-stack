@@ -27,13 +27,15 @@ class authMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
         return response 
     
+    
+    
 class authVerify(BaseHTTPMiddleware):
     async def dispatch(self , request:Request , call_next ):
         
         if request.url.path in ["/api/auth/signup", "/api/auth/login"]:
             return await call_next(request)
-        
-        token = request.cookies.get("access_token")
+        print("⚠️⚠️",request.url.path)
+        token = request.cookies.get("access_TOKEN")
         if not token:
             raise HTTPException(status_code=401, detail="Token missing")
 
@@ -41,10 +43,15 @@ class authVerify(BaseHTTPMiddleware):
             try:
                 payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
                 email = payload.get("email")
+                user_id = payload.get("user_id")
                 exist = user_collection.find_one({"email":email})
+                print("🌹🌹🌹🌹",exist)
                 if not exist:
                     raise HTTPException(status_code=401, detail="User not found")
                 request.state.user = exist    
+                request.state.user_id = user_id    
+            except Exception as e:
+                raise e 
             except JWTError: 
                  raise HTTPException(status_code=404, detail="NOT ALLOWED TO ACCESS") 
         response = await call_next(request)

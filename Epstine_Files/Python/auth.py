@@ -1,5 +1,6 @@
 from passlib.context import CryptContext
 from jose import jwt 
+from fastapi import status , HTTPException , Response
 from pydantic import BaseModel
 from datetime import datetime , timedelta
 from DatabaseConnect import client
@@ -28,27 +29,57 @@ def create_access_JWT(data:dict):
     to_encode.update({"exp":expire})
     return jwt.encode(to_encode,SECRET_KEY,algorithm=ALOGRITHM)
 
-def SignUp(register:User_register):
-    register_dict = register.model_dump() 
-    register_dict['password'] = HashPass(register.password)
-    user_collection.insert_one(register_dict)
-    print("DONE!! User successfully registerd!! ")
-    user_id = user_collection.find_one({"email":register.email})
-    Token = create_access_JWT({"email":register.email , "user_id":str(user_id['_id'])})
-    return Token
+def SignUp(register: User_register):
 
-def LogIn(LogIn:User_login):
-    exist = user_collection.find_one({"email":LogIn.email})
-    
-    if exist:
-        valid = verifyPass(LogIn.password , exist['password']  ) 
-        if valid:
-            pass 
+    user = user_collection.find_one({"email": register.email})
+
+    if user:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="User already exists!"
+        )
+
+    register_dict = register.model_dump()
+
+    register_dict["password"] = HashPass(register.password)
+
+    new_user = user_collection.insert_one(register_dict)
+
+    print("DONE!! User successfully registered!!")
+
+    token = create_access_JWT({
+        "email": register.email,
+        "user_id": str(new_user.inserted_id)
+    })
+
+    return token
+
+def LogIn(LogIn:User_login ):
+    try:
+        exist = user_collection.find_one({"email":LogIn.email}) 
+        if exist:
+            valid = verifyPass(LogIn.password , exist['password']  ) 
+            print(valid)
+            if valid:
+                token = create_access_JWT({"email": exist['email'], 'user_id': str(exist['_id']) })
+                return token
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Email or Password is Not valid , Please check once and try again!!" 
+                )
+                
         else:
-            return {"error" : "Email or Password is Not valid , Please check once and try again!! "}
-    else: 
-        return {"error": "the Account doesn't exist in DB , pleases signUp"}
-         
-    token = create_access_JWT({"email": exist['email']})
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User Not found! Please SignUp.."
+            )
+    except Exception as e:
+        raise e 
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Something went wrong from our Side , please try again later.. "
+        ) 
     
-    return {"message" : "DONE!!" , "TOKEN": token}
+    

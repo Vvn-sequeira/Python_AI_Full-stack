@@ -1,0 +1,7 @@
+{
+  "name": "Jchat",
+  "description": "A high-performance WhatsApp replica with a bold red and black theme, featuring AI-powered chat capabilities using Gemini.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

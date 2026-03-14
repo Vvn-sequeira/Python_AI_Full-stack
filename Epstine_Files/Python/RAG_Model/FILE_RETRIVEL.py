@@ -98,7 +98,7 @@ CONTEXT: {context}
 
     result = AiAgentReply(imporoved_user_query)
     # print(result)
-    return result
+    return result.content
  
         
 # Vector_search("Epstine_Questioning_FILE","Did Johhana have sex with anyone? ")
