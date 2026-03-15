@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { User } from '../types';
-import { useNavigate } from "react-router-dom"; 
+import FloatingNames from './FloatingNames';
 
 
 interface RegisterProps {
@@ -77,7 +77,9 @@ try {
   return (
     <div className="flex flex-col items-center justify-center h-full bg-[#0b141a] relative">
       <div className="absolute top-0 w-full h-56 bg-black z-0 border-b border-[#222d34]"></div>
-      
+
+      {/* Floating names background */}
+      <FloatingNames />
       <div className="z-10 bg-[#111b21] p-8 rounded-lg shadow-2xl w-full max-w-md border border-[#222d34]">
         <div className="flex items-center gap-3 mb-8">
           <div className="w-12 h-12 bg-black border border-[#ff3b30]/30 rounded-full flex items-center justify-center shadow-lg">

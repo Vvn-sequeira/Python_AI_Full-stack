@@ -15,6 +15,7 @@ user_collection = DB['User_Login']
 def ChatReply(chats:Chat , user_id):
     
     try:
+        print(chats)
         exist = chat_collection.find_one({"user_id": user_id , "receiver_name": chats.receiver_name })
         user = user_collection.find_one({"_id":ObjectId(user_id)})
         
@@ -26,7 +27,7 @@ def ChatReply(chats:Chat , user_id):
         token = user['token']
         
         if token <= 0:
-            raise HTTPException(
+            raise HTTPException( 
                 status_code=status.HTTP_406_NOT_ACCEPTABLE,
                 detail="You have reached you Token Limit."
             )
@@ -67,15 +68,17 @@ def ChatReply(chats:Chat , user_id):
     
     
 def View_messages(rec_name , id ):
-    user_id = "69971639833dd0b243807f2e"
     
-    get_msg = chat_collection.find_one({"user_id": user_id , "receiver_name": rec_name})
-    if not get_msg:
-        return 
-    
-    if not get_msg['messagae']:
-        return 
-    
-    print(get_msg)
-    
-    return get_msg['message']
+    try: 
+        user_id = id
+        
+        get_msg = chat_collection.find_one({"user_id": user_id , "receiver_name": rec_name})
+        
+        if not get_msg:
+            return 
+        
+        print(get_msg)
+        
+        return get_msg['message']
+    except Exception as e:
+        raise e 

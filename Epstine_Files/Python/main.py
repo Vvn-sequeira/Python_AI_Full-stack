@@ -10,23 +10,30 @@ from send_req_Route import Push_req
 from RAG_Model.FILE_RETRIVEL import Vector_search
 from fastapi.middleware.cors import CORSMiddleware
 from DatabaseConnect import client
+import os 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 app = FastAPI() 
-# app.add_middleware(authMiddleware)
+app.add_middleware(authMiddleware)
 
 DB = client['User_INFO']
 user_collection = DB["User_Login"]
 
-# app.add_middleware(authVerify)
+app.add_middleware(authVerify)
 
-origins = ["http://localhost:3000" ,"http://192.168.56.1:3000" , "http://10.174.123.56:3000" ]
+origins = os.getenv("ORIGINS","").split(',')
+# origins = ["http://localhost:3000" ,"http://192.168.56.1:3000" , "http://10.174.123.56:3000" ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,  
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT"],  
+    allow_headers=["Content-Type", "Authorization"],
 )
+
 
 @app.get("/")
 def hello():
@@ -75,14 +82,15 @@ def agent_reply(query:user_query):
 
 @app.post("/api/Chat" , status_code=status.HTTP_200_OK )
 def savechat(chats: Chat , request: Request  ):
-    # id = request.state.user_id 
-    id = "69b571798356e36c325c8505"
+    id = request.state.user_id 
+    # id = "69b571798356e36c325c8505"
     
     return ChatReply(chats , id ) 
 
 
 @app.post("/api/view" , status_code=status.HTTP_200_OK)
 def viewChat(data:Chat_access , request: Request):
+    # user_id = "69971639833dd0b243807f2e"
     user_id = request.state.user_id 
     res = View_messages(data.receiver_name , user_id)
     return {"res": res }
@@ -92,4 +100,4 @@ def viewChat(data:Chat_access , request: Request):
 def ret_req_from_user(data:get_req , request:Request ): 
     res = Push_req(data)
     
-    return {"message": f"Done Inserting ONE : {res} "}
+    return {"message": f"Done Inserting ONE : {res} "} 

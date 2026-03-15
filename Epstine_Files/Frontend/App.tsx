@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { ViewType, User, Chat } from './types';
+import { ViewType, User } from './types';
 import Login from './components/Login';
 import Register from './components/Register';
 import ChatMain from './components/ChatMain';
@@ -8,18 +8,26 @@ import ChatMain from './components/ChatMain';
 const App: React.FC = () => {
   const [view, setView] = useState<ViewType>('login');
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [wasRedirected, setWasRedirected] = useState(false);
 
-  // Check for stored user
+  // On mount: restore session from localStorage (cookie is HttpOnly so JS can't read it,
+  // but it is sent automatically with every API request by the browser)
   useEffect(() => {
     const savedUser = localStorage.getItem('jchat_user');
     if (savedUser) {
-      setCurrentUser(JSON.parse(savedUser));
-      setView('chat');
+      try {
+        setCurrentUser(JSON.parse(savedUser));
+        setView('chat');
+      } catch {
+        localStorage.removeItem('jchat_user');
+        setView('login');
+      }
     }
   }, []);
 
   const handleLogin = (user: User) => {
     setCurrentUser(user);
+    setWasRedirected(false);
     localStorage.setItem('jchat_user', JSON.stringify(user));
     setView('chat');
   };
@@ -30,16 +38,25 @@ const App: React.FC = () => {
     setView('login');
   };
 
+  // Called by ChatMain whenever a 401 comes back from any API call
+  const handleUnauthorized = () => {
+    console.warn('🔒 Session expired — redirecting to login');
+    setCurrentUser(null);
+    localStorage.removeItem('jchat_user');
+    setWasRedirected(true);
+    setView('login');
+  };
+
   return (
     <div className="h-screen w-screen bg-black overflow-hidden select-none">
       {view === 'login' && (
-        <Login onLogin={handleLogin} onSwitch={() => setView('register')} />
+        <Login onLogin={handleLogin} onSwitch={() => setView('register')} redirected={wasRedirected} />
       )}
       {view === 'register' && (
         <Register onRegister={handleLogin} onSwitch={() => setView('login')} />
       )}
       {view === 'chat' && currentUser && (
-        <ChatMain user={currentUser} onLogout={handleLogout} />
+        <ChatMain user={currentUser} onLogout={handleLogout} onUnauthorized={handleUnauthorized} />
       )}
     </div>
   );

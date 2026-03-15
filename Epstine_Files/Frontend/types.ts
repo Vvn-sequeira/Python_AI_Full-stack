@@ -13,6 +13,7 @@ export interface Message {
   text: string;
   timestamp: Date;
   status: 'sent' | 'delivered' | 'read';
+  isStreaming?: boolean;
 }
 
 export interface Chat {
@@ -22,6 +23,7 @@ export interface Chat {
   unreadCount: number;
   timestamp: string;
   messages: Message[];
+  FileName?: string;
 }
 
 export type ViewType = 'login' | 'register' | 'chat' | 'settings' | 'profile';

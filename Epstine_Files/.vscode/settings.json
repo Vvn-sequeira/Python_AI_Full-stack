@@ -1,3 +1,4 @@
 {
-    "C_Cpp.vcFormat.indent.preserveWithinParentheses": true
+    "C_Cpp.vcFormat.indent.preserveWithinParentheses": true,
+    "python.REPL.enableREPLSmartSend": false
 }
