@@ -13,8 +13,11 @@ class Chat(BaseModel):
     user_id: str  
     sender_name: str
     receiver_name: str
-    message: List[ChatMessage] = []
+    message: List[ChatMessage] = []  
     
+    
+class Chat_access(BaseModel):
+    receiver_name : str 
     
 #     {
 #   "user_id": "string",

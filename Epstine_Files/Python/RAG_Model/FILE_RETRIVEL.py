@@ -2,20 +2,27 @@ import os
 from openai import OpenAI
 from dotenv import load_dotenv
 import json
+from qdrant_client import QdrantClient
 from langchain_ollama import OllamaEmbeddings
 from langchain_qdrant import QdrantVectorStore 
+from langchain_nomic import NomicEmbeddings
+
 load_dotenv()
 
 
 
 
+Qdrant_API_KEY = os.getenv("QDRANT_API_KEY")
+QDRANT_CLUSTER_END_POINT=os.getenv("QDRANT_CLUSTER_END_POINT")
+
 
 
 def Vector_search(filename , user_query):
     
-    embeddinng_model= OllamaEmbeddings(
-        model="nomic-embed-text",
-        base_url="http://localhost:11434"
+
+    embedding_model = NomicEmbeddings(
+        model="nomic-embed-text-v1",
+        nomic_api_key=os.getenv("NOMIC_API_KEY"),
     )
     
     client = OpenAI(
@@ -23,25 +30,28 @@ def Vector_search(filename , user_query):
         api_key=os.getenv("HF_TOKEN"),
     )
     
-    print("🌹🌹🌹🌹I am here with 1", filename , "annd " , user_query)
+    print("I am here with 1", filename , "annd " , user_query)
+    
     vecotr_store = QdrantVectorStore.from_existing_collection(
-        embedding=embeddinng_model,
-        url="http://localhost:6333",
+        embedding=embedding_model,
+        # url="http://localhost:6333",
+        url=QDRANT_CLUSTER_END_POINT,
+        api_key=Qdrant_API_KEY,
         collection_name=f"{filename}"
     )
+    
     SYS_PROMPT1=f"""
-    You are an AI assistant.
-    who is going to improve this 'user query'
-    and add more key words so that it is helpfull to get more accurate result while doing RAG method on heavy PDF/doc/files
-    user_query={user_query}
+        Expand the user query with relevant keywords and synonyms to improve vector search accuracy.
+        Return only the improved query as a single string. No extra text.
 
-    NOTE: NO extra words , No introduction , NO conclusion , Only one improved userquery in a one String formate 
-    
-    Example:
-    user_query: Did Johhana have Fight with anyone?
-    (after reviewing and improving the query the AI should come up with )
-    imporved_query: Did Johanna have any sexual encounters with other characters in the document? Please provide specific details or page numbers if available.
-    
+        Example:
+        user_query: Did Johanna have a fight with anyone?
+        improved_query: Did Johanna have any conflict, argument, dispute, or confrontation with any individual or group?
+
+        user_query: Did Iran sexually harass underage girls?
+        improved_query: Were there any incidents of sexual abuse, misconduct, exploitation, or assault on minors, underage females, or young girls in Iran, involving coercion, grooming, or inappropriate contact?
+
+        user_query: {user_query}
     """
     
     completion = client.chat.completions.create(
@@ -68,19 +78,20 @@ def Vector_search(filename , user_query):
     ]
     print("⚠️⚠️  Context is DONE ") 
     SYS_PROMPT=f"""
-You are an helpfull AI assistent , helping user to go through the EPSTIEN FILES.
-Answer UserQuery based on the Context provided to you.
+        You are the documents — a collection of files, reports, and records provided to you.
+        Speak as the documents themselves, not as an AI.
 
-NOTE: DON"T Answer anything outside the Context Provided to you but you can answer the user query if the context is not enough for answering the question , you can mention like " according to the news report and FBI statement this and that . 
+        Answer only from the context provided. If context is insufficient, reference relevant 
+        publicly known statements or reports, clearly stating the source.
 
-While you answering the user query please make sure that you answere like a Victm not as an LLM who is reading the doc. 
+        Never identify yourself as an AI or say "based on the document." 
+        You ARE the document — speak from within it.
 
-Exapmple: 
-user_query: is Trup is involved in the Epstine File ? 
-(after reading the context the ai res should be like ..)
-LLM_Ans: Trump is not involved in this event (... go on explaining othr stuff that appears in the context ..)
+        Example:
+        User: Is [person] involved?
+        You: [Person] appears in... (continue with context)
 
-CONTEXT: {context}
+        CONTEXT: {context}
     """
     def AiAgentReply(query:str):
         print(f"the query users sent is : {query}")

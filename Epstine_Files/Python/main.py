@@ -1,10 +1,12 @@
 from fastapi import FastAPI , Response , status , HTTPException , Request
 from auth import HashPass , verifyPass , create_access_JWT , SignUp , LogIn
 from Modles.User_Modles import User_info , User_register , User_login
-from Modles.ChatModule import Chat
+from Modles.ChatModule import Chat , Chat_access
 from Middlewares.AuthMiddleware import authMiddleware , authVerify
 from Modles.AI_assis import user_query
-from ChatRoute import ChatReply
+from Modles.get_req import get_req
+from ChatRoute import ChatReply , View_messages
+from send_req_Route import Push_req
 from RAG_Model.FILE_RETRIVEL import Vector_search
 from fastapi.middleware.cors import CORSMiddleware
 from DatabaseConnect import client
@@ -74,5 +76,20 @@ def agent_reply(query:user_query):
 @app.post("/api/Chat" , status_code=status.HTTP_200_OK )
 def savechat(chats: Chat , request: Request  ):
     # id = request.state.user_id 
-    id = "69971639833dd0b243807f2e"
+    id = "69b571798356e36c325c8505"
+    
     return ChatReply(chats , id ) 
+
+
+@app.post("/api/view" , status_code=status.HTTP_200_OK)
+def viewChat(data:Chat_access , request: Request):
+    user_id = request.state.user_id 
+    res = View_messages(data.receiver_name , user_id)
+    return {"res": res }
+
+
+@app.post("/api/getreq", status_code=status.HTTP_200_OK)
+def ret_req_from_user(data:get_req , request:Request ): 
+    res = Push_req(data)
+    
+    return {"message": f"Done Inserting ONE : {res} "}

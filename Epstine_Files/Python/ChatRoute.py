@@ -16,7 +16,22 @@ def ChatReply(chats:Chat , user_id):
     
     try:
         exist = chat_collection.find_one({"user_id": user_id , "receiver_name": chats.receiver_name })
+        user = user_collection.find_one({"_id":ObjectId(user_id)})
         
+        if not user: 
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User doesn't Exist , Please Login through Our WebSite.. "
+            )
+        token = user['token']
+        
+        if token <= 0:
+            raise HTTPException(
+                status_code=status.HTTP_406_NOT_ACCEPTABLE,
+                detail="You have reached you Token Limit."
+            )
+            
+        print(user)
         res = Vector_search(chats.receiver_name , chats.message[0].user )
         
         msg = {
@@ -35,6 +50,12 @@ def ChatReply(chats:Chat , user_id):
             chat_collection.update_one(
                 {"user_id": user_id , "receiver_name": chats.receiver_name}, {"$push": {"message": msg }}
             )
+            
+       
+        token -= 1
+        user_collection.update_one({"_id":ObjectId(user_id)} , {"$set": {"token": token}})
+        
+        return res 
     except Exception as e : 
         raise e
     except Exception:
@@ -44,3 +65,17 @@ def ChatReply(chats:Chat , user_id):
         )  
         
     
+    
+def View_messages(rec_name , id ):
+    user_id = "69971639833dd0b243807f2e"
+    
+    get_msg = chat_collection.find_one({"user_id": user_id , "receiver_name": rec_name})
+    if not get_msg:
+        return 
+    
+    if not get_msg['messagae']:
+        return 
+    
+    print(get_msg)
+    
+    return get_msg['message']

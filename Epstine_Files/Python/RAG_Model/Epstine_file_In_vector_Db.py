@@ -12,7 +12,7 @@ Qdrant_API_KEY = os.getenv("QDRANT_API_KEY")
 QDRANT_CLUSTER_END_POINT=os.getenv("QDRANT_CLUSTER_END_POINT")
 
 
-pdf_path = Path(__file__).parent / "JEF_Questioning_FILE.pdf"
+pdf_path = Path(__file__).parent / "PDF_Iran.pdf"
 print("YES! Got the Path of the PDF")
 
 PDFLoader = PyPDFLoader(pdf_path)
@@ -23,6 +23,7 @@ Text_Splitter = RecursiveCharacterTextSplitter(
     chunk_size=1000,
     chunk_overlap=400 
 )
+
 Chunks = Text_Splitter.split_documents(docs)
 print("YES! Done Creating Chunks")
 
@@ -39,16 +40,15 @@ vector_search = QdrantVectorStore.from_documents(
     # url="http://localhost:6333",
      url=QDRANT_CLUSTER_END_POINT, 
      api_key=Qdrant_API_KEY,
-     collection_name="Epstine_Court_Questioning_FILE"
+     collection_name="PDF_Iran"
 )
+
 print("Done storing the Vector embedded Data to the cloud")
 print("*****************DONE************************")
 
-#from qdrant_client import QdrantClient
 
-# qdrant_client = QdrantClient(
-#     url="https://c368fe9f-84b0-429a-9536-904cd1f6ebb1.europe-west3-0.gcp.cloud.qdrant.io:6333", 
-#     api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.3YIDOGidszycGxkWuj86s7hl5DImHkQ7gu509vKdMd4",
-# )
+# FILES NAME
+# Sexual_Harasment_in_Iran.pdf
+# PDF_Iran.pdf
 
-# print(qdrant_client.get_collections())
+
