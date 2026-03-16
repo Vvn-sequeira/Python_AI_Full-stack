@@ -48,7 +48,10 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="h-screen w-screen bg-black overflow-hidden select-none">
+    <div
+      className="w-screen bg-black overflow-hidden select-none"
+      style={{ height: '100dvh', /* fallback for older mobile browsers */  minHeight: 'calc(var(--vh, 1vh) * 100)' }}
+    >
       {view === 'login' && (
         <Login onLogin={handleLogin} onSwitch={() => setView('register')} redirected={wasRedirected} />
       )}

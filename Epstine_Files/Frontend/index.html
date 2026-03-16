@@ -1,20 +1,31 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="height: 100%;">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- interactive-widget=resizes-content keeps the viewport height stable when
+         the on-screen keyboard opens, preventing the page from jumping. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
     <title>Jchat | Messenger</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
     <style>
+        /*
+         * --vh polyfill: set by the JS below for browsers that don't support dvh.
+         * Falls back gracefully to 1vh on very old browsers.
+         */
+        :root { --vh: 1vh; }
+
         body {
             font-family: 'Inter', sans-serif;
             background-color: #0b141a;
             color: #e9edef;
             margin: 0;
             overflow: hidden;
-            height: 100vh;
+            /* dvh = dynamic viewport height: excludes browser chrome (address bar, tabs).
+               Fallback chain: dvh → --vh custom property → 100vh */
+            height: 100dvh;
+            height: calc(var(--vh) * 100);
         }
         #root {
             height: 100%;
@@ -53,5 +64,25 @@
 <body>
     <div id="root"></div>
 <script type="module" src="/index.tsx"></script>
+
+<!-- Mobile viewport height fix:
+     Sets --vh to the actual visible height so body/app fills exactly
+     the visible area, excluding browser chrome (address bar, tabs, etc.).
+     This is a polyfill for browsers that don't yet support `dvh`. -->
+<script>
+  (function () {
+    function setVh() {
+      var vh = (window.visualViewport ? window.visualViewport.height : window.innerHeight) * 0.01;
+      document.documentElement.style.setProperty('--vh', vh + 'px');
+    }
+    setVh();
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', setVh);
+    } else {
+      window.addEventListener('resize', setVh);
+      window.addEventListener('orientationchange', setVh);
+    }
+  })();
+</script>
 </body>
 </html>

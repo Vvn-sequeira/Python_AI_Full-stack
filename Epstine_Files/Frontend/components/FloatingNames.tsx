@@ -1,6 +1,29 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 
+/**
+ * Returns true if the user is on a mobile or tablet device.
+ * Detection uses two signals:
+ *  1. Coarse pointer (touch screen)  — covers phones & tablets
+ *  2. Screen width ≤ 1024px          — extra safety net
+ */
+function useIsMobileOrTablet(): boolean {
+  const getIsMobile = () =>
+    window.matchMedia('(pointer: coarse)').matches ||
+    window.matchMedia('(max-width: 1024px)').matches;
+
+  const [isMobile, setIsMobile] = useState<boolean>(getIsMobile);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1024px)');
+    const handler = () => setIsMobile(getIsMobile());
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  return isMobile;
+}
+
 const RED_NAMES = [
   'Donald Trump', 'Melania Trump', 'Ivanka Trump', 'JD Vance',
   'Bill Clinton', 'Hillary Clinton', 'Barack Obama', 'Michelle Obama',
@@ -50,6 +73,7 @@ interface NameItem {
 }
 
 const FloatingNames: React.FC = () => {
+  const isMobile = useIsMobileOrTablet();
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
@@ -87,6 +111,10 @@ const FloatingNames: React.FC = () => {
       rotation: (seededRand(i * 6) - 0.5) * 10,
     }));
   }, []);
+
+  // 🚫 Don't render anything on mobile / tablet — the animation lags heavily
+  // and makes typing in the form very difficult on touch devices.
+  if (isMobile) return null;
 
   return (
     <>
