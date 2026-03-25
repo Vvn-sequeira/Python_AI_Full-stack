@@ -3,9 +3,10 @@ from langchain_ollama import OllamaEmbeddings
 from langchain_ollama import ChatOllama
 from langchain_core.messages import SystemMessage, HumanMessage
 
-embedding_model= OllamaEmbeddings(
-# ...
-    )
+embedding_model = OllamaEmbeddings(
+    model="nomic-embed-text",
+    base_url="http://localhost:11434"   
+)
 
 llm = ChatOllama(
     model="qwen2.5:7b",
@@ -17,7 +18,7 @@ def get_result(query:str):
     vector_store = QdrantVectorStore.from_existing_collection(
     embedding=embedding_model,
     url="http://localhost:6333",
-    collection_name="learning_rag"
+    collection_name="Epstine_Questioning_FILE"
     )
     search_result = vector_store.similarity_search(query=query)
     

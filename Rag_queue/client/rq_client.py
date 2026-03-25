@@ -2,7 +2,7 @@ from redis import Redis
 from rq import Queue
 
 queue = Queue(connection=Redis(
-    host="http://localhost:3030",
+    host="http://localhost:6379",
     port="6379"
 ))
 
